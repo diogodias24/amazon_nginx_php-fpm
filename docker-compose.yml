@@ -1,0 +1,36 @@
+version: '3.5'
+
+services:
+  database_mariadb:
+      image: mariadb
+      container_name: mariadb_nginx_apache
+      environment: 
+        - MYSQL_ROOT_PASSWORD=password
+        - MYSQL_DATABASE=testeb
+        - MYSQL_USER=user
+        - MYSQL_PASSWORD=user
+      ports:
+        - "33060:3306"
+      restart: on-failure
+  
+  nginx_apache:
+    build: 
+      context: ./
+      dockerfile: Dockerfile
+    container_name: amazon-nginx_apache
+    links:
+      - database_mariadb
+    ports:
+      - "80:80/tcp"
+      - "443:443/tcp"
+    #volumes:
+      #- ./nginx:/etc/nginx/sites-available
+      #- ./php-fpm:/etc/php-fpm.d
+      #- ./logs:/var/log/nginx
+    environment:
+      - TZ=Europe/Lisbon
+    restart: unless-stopped  
+    #OPTIONS ON CONTAINER  
+    stdin_open: true
+    tty: true
+    #privileged: true
