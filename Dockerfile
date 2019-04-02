@@ -1,26 +1,22 @@
-FROM amazonlinux
+FROM diogodias2/amazon_ami2
+
 LABEL Diogo Dias <saidogoid2@gmail.com>
 
-RUN yum -y update && yum -y upgrade && yum -y install \
- 	sudo \
-	nano \
-	initscripts \
-	openssh \
-	git \
-	zip \
-	unzip \
-	vim \
-	mysql \
-	wget \
-	&& useradd -ms /bin/bash ec2-user && echo "ec2-user:ec2-user" | chpasswd &&  usermod -a -G wheel ec2-user \
-  	&& echo '%wheel ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+USER root 
 
-EXPOSE 80 443 3306
+RUN amazon-linux-extras install -y nginx1.12 && sudo amazon-linux-extras install -y php7.2 \
+	&& chown -R ec2-user /var/log/nginx /var/lib/nginx/ \
+	&& chkconfig nginx on && chkconfig php-fpm on
 
-USER ec2-user
+EXPOSE 80 443 
+
+#ADD ./index.html /usr/share/nginx/html/
+
 WORKDIR /home/ec2-user
 
-CMD /bin/bash
+VOLUME [ "/sys/fs/cgroup" ]
 
+CMD ["/usr/sbin/init"]
 
-#CMD [“/sbin/init”]
+#USER ec2-user 
+#THE SYSTEM CANT RUN WITH OTHER USER THAN ROOT
